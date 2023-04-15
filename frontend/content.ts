@@ -1,16 +1,24 @@
 import type { PlasmoCSConfig } from "plasmo"
  
 export const config: PlasmoCSConfig = {
-  //matches: ["https://www.meet.google.com/*"],
-  matches: ["<all_urls>"],
+  matches: ["https://meet.google.com/*"],
   all_frames: true
 }
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.message === "getDOM") {
-    const dom = document.documentElement.innerHTML;
-    sendResponse({dom: dom});
-    //console.log(dom)
+const observer = new MutationObserver(mutations => {
+  mutations.forEach(mutation => {
+    console.log(mutation);
+  });
+});
+
+const targetNode = document.body;
+const observerConfig = { attributes: true, childList: true, subtree: true };
+observer.observe(targetNode, observerConfig);
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message === 'stop') {
+    observer.disconnect();
+    sendResponse({message: 'STOPPED OBSERVING!' });
     return true
   }
 });

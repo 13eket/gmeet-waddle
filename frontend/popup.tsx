@@ -6,8 +6,8 @@ function IndexPopup() {
   const handleClick = () => {
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
       const tabId = tabs[0].id;
-      chrome.tabs.sendMessage(tabId, {message: "getDOM"}, (response) => {
-        console.log(response.dom);
+      chrome.tabs.sendMessage(tabId, {message: "stop"}, (response) => {
+        console.log(response.message);
       });
     });
   }
@@ -19,7 +19,7 @@ function IndexPopup() {
         flexDirection: "column",
         padding: 16
       }}>
-      <button onClick={handleClick}>Get DOM</button>
+      <button onClick={handleClick}>Stop</button>
     </div>
   )
 }
