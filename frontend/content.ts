@@ -7,15 +7,24 @@ export const config: PlasmoCSConfig = {
 
 let observer: MutationObserver | undefined;
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.message === 'startObserving') {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.message === 'startObserving') {
     // Unique div class for google CC
     const targetNode = document.querySelector('div.a4cQT');
     
     if (targetNode && !observer) {
       observer = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-          console.log(mutation);
+        mutations.forEach((mutation) => {
+          if (mutation.type === "childList") {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeType === Node.TEXT_NODE) {
+                const textContent = node.textContent.trim();
+                chrome.runtime.sendMessage({ message: "storeText", content: textContent }, (response) => {
+                  console.log(response.message);
+                });
+              }
+            });
+          }
         });
       });
       
@@ -23,7 +32,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       observer.observe(targetNode, observerConfig);
       sendResponse({ message: 'STARTED OBSERVING!' });
     }
-  } else if (message.message === 'stopObserving') {
+  } else if (request.message === 'stopObserving') {
     if (observer) {
       observer.disconnect();
       observer = undefined;
