@@ -3,11 +3,18 @@ import { useState } from "react"
 function IndexPopup() {
   const [data, setData] = useState("")
 
-  const handleClick = () => {
+  const handleStartClick = () => {
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
       const tabId = tabs[0].id;
-      chrome.tabs.sendMessage(tabId, {message: "stop"}, (response) => {
-        console.log(response.message);
+      chrome.tabs.sendMessage(tabId, {message: "startObserving"}, (response) => {
+      });
+    });
+  }
+
+  const handleStopClick = () => {
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+      const tabId = tabs[0].id;
+      chrome.tabs.sendMessage(tabId, {message: "stopObserving"}, (response) => {
       });
     });
   }
@@ -19,7 +26,8 @@ function IndexPopup() {
         flexDirection: "column",
         padding: 16
       }}>
-      <button onClick={handleClick}>Stop</button>
+      <button onClick={handleStartClick}>Start</button>
+      <button onClick={handleStopClick}>Stop</button>
     </div>
   )
 }
